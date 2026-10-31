@@ -31,6 +31,7 @@ An interactive isometric reconstruction of John Searl's SEG, with a runnable phy
 | `sim.mjs` | 力与能量预算、缺口分析 |
 | `dyn.mjs` | 时域模拟：180 s、10 ms 步长 |
 | `drive-actions.json` | headless Chrome 验证脚本 |
+| `proofs/` | 9 条可证定理、Lean 4 形式化、数值证书 |
 | `shots/` | 验证截图（整页、电晕、滚子分段、幻方、手机） |
 
 ## 构建
