@@ -77,7 +77,7 @@ export const STAGES = [
     key: "antigrav",
     title: "反重力",
     verdict: "无证据",
-    detail: `参考系拖曳实测 ${GPB_MAS_PER_YEAR} mas/yr，实验室转子小 30 个数量级`,
+    detail: `参考系拖曳实测 ${GPB_MAS_PER_YEAR} mas/yr；同尺寸转子约 10⁻⁶ mas/yr，低 7 个数量级`,
   },
 ];
 

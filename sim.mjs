@@ -13,6 +13,10 @@ const MAGNET_MASS = 225;
 const ROTOR_R = 0.12;
 const EARTH_J = 5.9e33;
 const GPB_MAS = 37.2;
+const GRAV_LT = 6.6743e-11;
+const C_LT = 2.99792458e8;
+const YEAR_S = 3.15576e7;
+const MAS_RAD = 4.848136811e-9;
 
 const weight = CLAIMED_MASS * G;
 const need = weight * CLAIMED_LOSS;
@@ -27,7 +31,7 @@ const ionNeeded = (need * MU_ION) / GAP;
 const ionWatts = HV * ionNeeded;
 const field = HV / 10e-3;
 const esForce = 0.5 * EPS0 * field ** 2 * PIN_AREA;
-const precession = GPB_MAS * (momentum / EARTH_J);
+const precession = ((2 * GRAV_LT * momentum) / (C_LT ** 2 * ROTOR_R ** 3)) * (YEAR_S / MAS_RAD);
 const steel = (distance, area) => {
   const b = Math.min((1e-7 * 2.4e4) / distance ** 3, 0.4);
   return (b * b * area) / (2 * MU0);
