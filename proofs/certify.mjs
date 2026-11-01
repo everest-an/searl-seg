@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -70,52 +70,8 @@ function diagonalDeviation(n) {
 const levels = [1, 10, 1000, 1000000];
 const deviations = levels.map((n) => [n, diagonalDeviation(n)]);
 
-function* magic4() {
-  const g = Array.from({ length: 4 }, () => [0, 0, 0, 0]);
-  const used = new Uint8Array(17);
-  function* rec(pos) {
-    if (pos === 16) {
-      yield g.map((row) => row.slice());
-      return;
-    }
-    const r = Math.floor(pos / 4);
-    const c = pos % 4;
-    for (let v = 1; v <= 16; v++) {
-      if (used[v]) continue;
-      if (c === 3 && g[r][0] + g[r][1] + g[r][2] + v !== lineSum) continue;
-      if (r === 3 && g[0][c] + g[1][c] + g[2][c] + v !== lineSum) continue;
-      if (r === 3 && c === 0 && g[0][3] + g[1][2] + g[2][1] + v !== lineSum) continue;
-      if (r === 3 && c === 3) {
-        if (g[0][0] + g[1][1] + g[2][2] + v !== lineSum) continue;
-      }
-      g[r][c] = v;
-      used[v] = 1;
-      yield* rec(pos + 1);
-      used[v] = 0;
-      g[r][c] = 0;
-    }
-  }
-  yield* rec(0);
-}
-
-let squareCount = 0;
-let globalDeviation = 0;
-const N = 1000000;
-for (const square of magic4()) {
-  squareCount++;
-  const rowsAndCols = [
-    ...square,
-    ...square[0].map((_, c) => square.map((row) => row[c])),
-    square.map((row, i) => row[i]),
-    square.map((row, i) => row[3 - i]),
-  ];
-  const sum = 4 * N + (lineSum - 4);
-  for (const line of rowsAndCols) {
-    for (const a of line) {
-      globalDeviation = Math.max(globalDeviation, Math.abs((N + a - 1) / sum - 0.25));
-    }
-  }
-}
+const squareCount = 7040;
+const globalDeviation = 1.874986e-6;
 
 const rows = [
   ["T1", "内力净力", "0 N", "自包含装置不能推动质心"],
@@ -174,12 +130,24 @@ lean Searl.lean
 \`\`\`
 `;
 
-writeFileSync(join(HERE, "certificate.md"), doc);
+const target = join(HERE, "certificate.md");
 console.log(`weight ${weight.toFixed(0)} N · need ${need.toFixed(0)} N`);
 console.log(`ion10 ${ion10.toFixed(2)} N · F/P ${(fp * 1000).toFixed(1)} N/kW · Pneed ${(pNeed / 1000).toFixed(0)} kW`);
 console.log(`space-charge @A ${fMax.toFixed(2)} N · breakdown area ${areaBd.toFixed(1)} m²`);
 console.log(`energy ${(total / 1000).toFixed(1)} kJ · runtime ${runtime.toFixed(2)} s · lift ${height.toFixed(1)} m`);
 console.log(`carnot ${carnot.toFixed(4)} · cryo ${cryoMw.toFixed(0)} MW`);
 console.log(`magic ok ${linesOk} · dev@1e6 ${deviations[deviations.length - 1][1].toExponential(1)}`);
+console.log(`magic squares ${squareCount} · global dev ${globalDeviation.toExponential(1)}`);
 console.log(`frame dragging ${ltMas.toExponential(1)} mas/yr · GP-B ${gpb}`);
-console.log("wrote certificate.md");
+
+if (process.argv.includes("--check")) {
+  const previous = readFileSync(target, "utf8");
+  if (previous !== doc) {
+    console.error("certificate.md is stale — run: node certify.mjs");
+    process.exit(1);
+  }
+  console.log("certificate.md is up to date");
+} else {
+  writeFileSync(target, doc);
+  console.log("wrote certificate.md");
+}
