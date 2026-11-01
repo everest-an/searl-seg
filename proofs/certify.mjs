@@ -70,6 +70,53 @@ function diagonalDeviation(n) {
 const levels = [1, 10, 1000, 1000000];
 const deviations = levels.map((n) => [n, diagonalDeviation(n)]);
 
+function* magic4() {
+  const g = Array.from({ length: 4 }, () => [0, 0, 0, 0]);
+  const used = new Uint8Array(17);
+  function* rec(pos) {
+    if (pos === 16) {
+      yield g.map((row) => row.slice());
+      return;
+    }
+    const r = Math.floor(pos / 4);
+    const c = pos % 4;
+    for (let v = 1; v <= 16; v++) {
+      if (used[v]) continue;
+      if (c === 3 && g[r][0] + g[r][1] + g[r][2] + v !== lineSum) continue;
+      if (r === 3 && g[0][c] + g[1][c] + g[2][c] + v !== lineSum) continue;
+      if (r === 3 && c === 0 && g[0][3] + g[1][2] + g[2][1] + v !== lineSum) continue;
+      if (r === 3 && c === 3) {
+        if (g[0][0] + g[1][1] + g[2][2] + v !== lineSum) continue;
+      }
+      g[r][c] = v;
+      used[v] = 1;
+      yield* rec(pos + 1);
+      used[v] = 0;
+      g[r][c] = 0;
+    }
+  }
+  yield* rec(0);
+}
+
+let squareCount = 0;
+let globalDeviation = 0;
+const N = 1000000;
+for (const square of magic4()) {
+  squareCount++;
+  const rowsAndCols = [
+    ...square,
+    ...square[0].map((_, c) => square.map((row) => row[c])),
+    square.map((row, i) => row[i]),
+    square.map((row, i) => row[3 - i]),
+  ];
+  const sum = 4 * N + (lineSum - 4);
+  for (const line of rowsAndCols) {
+    for (const a of line) {
+      globalDeviation = Math.max(globalDeviation, Math.abs((N + a - 1) / sum - 0.25));
+    }
+  }
+}
+
 const rows = [
   ["T1", "内力净力", "0 N", "自包含装置不能推动质心"],
   ["T2", "磁能上限", `${(magnetic / 1000).toFixed(1)} kJ`, "静态磁体的一次性功上限"],
@@ -82,7 +129,8 @@ const rows = [
   ["T5", `所需功率 / 空间电荷上限 @${(A).toFixed(2)} m²`, `${(pNeed / 1000).toFixed(0)} kW / ${fMax.toFixed(2)} N`, "在所述几何下推力被封顶"],
   ["T5", "击穿场下的面积需求", `${areaBd.toFixed(1)} m²`, `E ≤ ${(E_BD / 1e6).toFixed(0)} MV/m 时 1201 N`],
   ["T6", "幻方线和校验", linesOk ? "通过" : "失败", "10 条线均为 34"],
-  ["T6", "最大比例偏差 @n=10⁶", deviations[deviations.length - 1][1].toExponential(1), "趋于 1/4"],
+  ["T6", "全部 4 阶幻方", `${squareCount} 个`, "含旋转/镜像；去重 880 个"],
+  ["T6", "全枚举最大比例偏差 @n=10⁶", globalDeviation.toExponential(1), "趋于 1/4"],
   ["T7", "转子参考系拖曳", `${ltMas.toExponential(1)} mas/yr`, `GP-B ${gpb} mas/yr`],
   ["T9", "无驱动转速", "单调不增", "自持加速需负阻力"],
 ];
@@ -107,6 +155,8 @@ Dürer 方（线和 34）的对角元素比例，层数 $n$：
 | n | 最大偏差 from 1/4 |
 |---|---|
 ${devTable}
+
+全部 4 阶幻方（含旋转/镜像）枚举：**${squareCount}** 个（去重后为 880 个）。在 $n=10^6$ 时，对所有方阵、所有 10 条线、所有元素，比例与 $1/4$ 的最大偏差为 **${globalDeviation.toExponential(2)}**。
 
 ## 常数
 
