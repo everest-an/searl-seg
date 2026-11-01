@@ -45,6 +45,15 @@ node build.mjs --light
 
 默认从 `~/.config/opencode/skills/anatomy` 读取，可用 `ANATOMY` 环境变量覆盖。已构建的页面是自包含的，打开不需要任何依赖。
 
+## 验证
+
+```sh
+node proofs/certify.mjs --check     # 证书未过期（<0.1 s）
+node proofs/enumerate.mjs --check   # 重算全部 7040 个 4 阶幻方（约 17 s）
+node --test proofs/certify.test.mjs # 守卫测试
+lean proofs/Searl.lean              # 形式化（需 Lean 4）
+```
+
 ## 证据与边界
 
 - **几何与参数**：Sandberg 1985 / 1987 报告、SISRC 2003、SEGM 2022

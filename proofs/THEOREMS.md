@@ -101,7 +101,9 @@ GP-B 实测 37.2 mas/yr，比值约 $3\times10^{-8}$（低约 7.5 个数量级�
 ## 形式化与数值证书
 
 - Lean 4：`Searl.lean`（4 条定理，`omega` 关闭）。
-- 数值证书：`certify.mjs` 输出 `certificate.md`，对参数网格逐点验证上界。
+- 数值证书：`certify.mjs` 输出 `certificate.md`；`node certify.mjs --check` 验证证书未过期（< 0.1 s）。
+- 穷举核实：`node enumerate.mjs --check` 重算全部 7040 个 4 阶幻方（约 17 s）。
+- 测试：`node --test certify.test.mjs`。
 
 ## 不能证的部分
 
